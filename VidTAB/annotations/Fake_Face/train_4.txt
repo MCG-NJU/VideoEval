@@ -1,0 +1,8 @@
+videos/neg/014_790-FaceShifter.mp4 0
+videos/neg/071_054-FaceSwap.mp4 0
+videos/neg/696_686-Face2Face.mp4 0
+videos/neg/126_104-FaceSwap.mp4 0
+videos/pos/014.mp4 1
+videos/pos/071.mp4 1
+videos/pos/696.mp4 1
+videos/pos/126.mp4 1

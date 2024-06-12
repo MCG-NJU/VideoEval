@@ -1,0 +1,3 @@
+{0: "video without any malicious content",
+1: "video contains fast and repetitive motions or violent activity (hitting/destruction/killing)",
+2: "video contains any obscene/indecent activity or the appearance of the cartoon character is unpleasant/disgusting"}

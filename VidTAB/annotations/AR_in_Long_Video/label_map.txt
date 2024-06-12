@@ -1,0 +1,1 @@
+{'0': 'cereals', '9': 'milk', '6': 'friedegg', '3': 'scrambledegg', '8': 'tea', '2': 'coffee', '5': 'salat', '4': 'pancake', '1': 'sandwich', '7': 'juice'}

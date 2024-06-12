@@ -1,0 +1,1 @@
+{'5': 'Run', '9': 'Walk', '6': 'Sit', '10': 'Wave', '7': 'Stand', '8': 'Turn', '0': 'Drink', '1': 'Jump', '2': 'Pick', '3': 'Pour', '4': 'Push'}

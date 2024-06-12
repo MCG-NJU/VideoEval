@@ -1,0 +1,2 @@
+{0: "low quality video",
+1: "high quality video"}

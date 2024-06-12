@@ -1,0 +1,18 @@
+{
+    1: "abdominal_access", 
+    5: "dissection_thermal",
+    9: "needle_positioning",
+    13: "thread_cut",
+    2: "injection",   
+    6: "irrigation",      
+    10: "needle_puncture", 
+    14: "sling-in",
+    3: "cutting",
+    7: "coagulation",        
+    11: "knot_pushing",       
+    15: "endobag-in",
+    4: "blunt_dissection",
+    8: "suction", 
+    12: "knotting",
+    16: "endobag-out"
+}
