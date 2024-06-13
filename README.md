@@ -1,9 +1,14 @@
-# VideoEval: Comprehensive Benchmark Suite for Low-Cost Evaluation of Video Foundation Model
+# 🐼VideoEval
 
+<div align="center">
 
+<h2><a href="https://arxiv.org/abs/">VideoEval: Comprehensive Benchmark Suite for Low-Cost Evaluation of Video Foundation Model</a></h2>
+
+[Xinhao Li](https://scholar.google.com.hk/citations?user=evR3uR0AAAAJ&hl=zh-CN), Zhenpeng Huang, Jing Wang, [Kunchang Li](https://scholar.google.com/citations?user=D4tLSbsAAAAJ), and [Limin Wang](https://scholar.google.com/citations?user=HEuN8PcAAAAJ).
+
+</div>
 
 <img src="img/image-20240607232318559.png" alt="image-20240607232318559" style="zoom: 67%;" />
-
 
 ## :fire: Updates
 - **2024/06/12**: Release annotations and evaluation codes of **VideoEval**, which includes VidTAB and VidEB.
@@ -26,7 +31,7 @@ pip install -v -e .
 
 ### Data Preparation
 
-Due to potential copyright issues, please refer to [DATA.md](https://github.com/leexinhao/VideoEval/tree/main/VidTAB/DATA.md) to download the original videos of each dataset separately, and we will share our version of the dataset after we confirm that there are no copyright issues. 
+Due to potential copyright issues, please refer to [DATA.md](https://github.com/leexinhao/VideoEval/blob/main/DATA.md) to download the original videos of each dataset separately, and we will share our version of the dataset after we confirm that there are no copyright issues. 
 
 For VidTAB, you could directly use the [annotations](https://github.com/leexinhao/VideoEval/tree/main/VidTAB/annotations) we prepared.
 
@@ -63,8 +68,8 @@ Then you can go to the work dir to find the corresponding log file to see the re
 **Prompts for  Zero-Shot Evaluation**: see [prompts for image backbones](https://github.com/leexinhao/VideoEval/blob/main/VidTAB_Zeroshot/img_prompt_gen.py), [prompts for video backbones](https://github.com/leexinhao/VideoEval/blob/main/VidTAB_Zeroshot/vid_prompt_gen.py).
 
 ```bash
-bash exp/vid_zs.sh #for video backbones
-bash exp/img_zs.sh #for image backbones
+bash exp/vid_zs.sh #for video language models
+bash exp/img_zs.sh #for image language models
 ```
 
 ### Video Embed Benchmark (VidEB)
@@ -73,9 +78,7 @@ For evaluation, we provide [example](https://github.com/leexinhao/VideoEval/blob
 
 ## :dizzy: Acknowledgement
 
-Thanks to the open source of the following projects:
-
-[vsc2022](https://github.com/facebookresearch/vsc2022/tree/main), [FIVR-200K](https://github.com/MKLab-ITI/FIVR-200K), [Ask-Anything](https://github.com/OpenGVLab/Ask-Anything/tree/main), [UMT](https://github.com/OpenGVLab/unmasked_teacher), [EVA](https://github.com/baaivision/EVA/tree/master), [InternVideo](https://github.com/OpenGVLab/InternVideo/tree/main?tab=readme-ov-file), [SigLIP](https://github.com/google-research/big_vision), [CLIP](https://github.com/openai/CLIP), [jepa](https://github.com/facebookresearch/jepa), [dinov2](https://github.com/facebookresearch/dinov2), [VideoMAE](https://github.com/MCG-NJU/VideoMAE), [VideoMAEv2](https://github.com/OpenGVLab/VideoMAEv2)
+Thanks to the open source of the following projects: [ARID](https://xuyu0010.github.io/arid.html), [Breakfast](https://serre-lab.clps.brown.edu/resource/breakfast-actions-dataset/), [Animal Kingdom](https://github.com/sutdcv/Animal-Kingdom),  [SurgicalActions160](http://ftp.itec.aau.at/datasets/SurgicalActions160/index.html), [FaceForensics++](https://github.com/ondyari/FaceForensics), [MOB](https://github.com/syedhammadahmed/mob), [DOVER](https://github.com/VQAssessment/DOVER), [CAER](https://caer-dataset.github.io/), [vsc2022](https://github.com/facebookresearch/vsc2022/tree/main), [FIVR-200K](https://github.com/MKLab-ITI/FIVR-200K), [Ask-Anything](https://github.com/OpenGVLab/Ask-Anything/tree/main), [UMT](https://github.com/OpenGVLab/unmasked_teacher), [EVA](https://github.com/baaivision/EVA/tree/master), [InternVideo](https://github.com/OpenGVLab/InternVideo/tree/main?tab=readme-ov-file), [SigLIP](https://github.com/google-research/big_vision), [CLIP](https://github.com/openai/CLIP), [jepa](https://github.com/facebookresearch/jepa), [dinov2](https://github.com/facebookresearch/dinov2), [VideoMAE](https://github.com/MCG-NJU/VideoMAE), [VideoMAEv2](https://github.com/OpenGVLab/VideoMAEv2), [MMAction2](https://github.com/open-mmlab/mmaction2).
 
 ## :page_facing_up: Citation
 
