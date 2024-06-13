@@ -69,7 +69,13 @@ bash exp/img_zs.sh #for image backbones
 
 ### Video Embed Benchmark (VidEB)
 
-todo
+For evaluation, we provide [example](https://github.com/leexinhao/VideoEval/blob/main/VidEB/example.ipynb) as a demonstration of the pipeline of embedding extraction and evaluation
+
+#### Acknowledgement
+
+ Thanks to the open source of the following projects:
+
+[facebookresearch/vsc2022](https://github.com/facebookresearch/vsc2022/tree/main),[MKLab-ITI/FIVR-200K](https://github.com/MKLab-ITI/FIVR-200K)
 
 ## :page_facing_up: Citation
 
