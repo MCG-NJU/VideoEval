@@ -77,7 +77,6 @@ For evaluation, we provide [example](https://github.com/leexinhao/VideoEval/blob
 
 Thanks to the open source of the following projects:
 
- Thanks to the open source of the following projects:
 
 [facebookresearch/vsc2022](https://github.com/facebookresearch/vsc2022/tree/main),[MKLab-ITI/FIVR-200K](https://github.com/MKLab-ITI/FIVR-200K)
 
