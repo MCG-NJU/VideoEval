@@ -71,14 +71,11 @@ bash exp/img_zs.sh #for image backbones
 
 For evaluation, we provide [example](https://github.com/leexinhao/VideoEval/blob/main/VidEB/example.ipynb) as a demonstration of the pipeline of embedding extraction and evaluation.
 
-
-
 ## :dizzy: Acknowledgement
 
 Thanks to the open source of the following projects:
 
-
-[facebookresearch/vsc2022](https://github.com/facebookresearch/vsc2022/tree/main),[MKLab-ITI/FIVR-200K](https://github.com/MKLab-ITI/FIVR-200K)
+[vsc2022](https://github.com/facebookresearch/vsc2022/tree/main), [FIVR-200K](https://github.com/MKLab-ITI/FIVR-200K), [Ask-Anything](https://github.com/OpenGVLab/Ask-Anything/tree/main), [UMT](https://github.com/OpenGVLab/unmasked_teacher), [EVA](https://github.com/baaivision/EVA/tree/master), [InternVideo](https://github.com/OpenGVLab/InternVideo/tree/main?tab=readme-ov-file), [SigLIP](https://github.com/google-research/big_vision), [CLIP](https://github.com/openai/CLIP), [jepa](https://github.com/facebookresearch/jepa), [dinov2](https://github.com/facebookresearch/dinov2), [VideoMAE](https://github.com/MCG-NJU/VideoMAE), [VideoMAEv2](https://github.com/OpenGVLab/VideoMAEv2)
 
 ## :page_facing_up: Citation
 
@@ -86,4 +83,3 @@ If you find this project useful in your research, please consider cite:
 ```BibTeX
 
 ```
-

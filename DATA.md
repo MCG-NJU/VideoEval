@@ -75,4 +75,30 @@ You just need to use the mp4 video in the video folder and then use the [annotat
 
 # VidEB
 
-todo
+## FIVR-5K
+
+* Install [yt-dlp](https://github.com/yt-dlp/yt-dlp) (make sure it is up-to-date)
+* Run the following command to download videos:
+
+```bash
+python VidEB/annotations/FIVR-5K/download_dataset.py \
+						   --video_dir VIDEO_DIR \
+						   --dataset_ids VidEB/annotations/FIVR-5K/used_videos.txt \
+						   --cores NUMBER_OF_CODES \
+						   --resolution RESOLUTION
+```
+
+## DVSC23
+
+For queries,
+
+```bash
+wget -i VidEB/annotations/DVSC23/vsc_queries.txt --cut-dirs 2 -x -nH
+```
+
+For database,
+
+```bash
+wget -i VidEB/annotations/DVSC23/vsc_database.txt --cut-dirs 2 -x -nH
+```
+
