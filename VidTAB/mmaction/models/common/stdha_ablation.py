@@ -6,18 +6,18 @@ import torch.nn.functional as F
 import warnings
 from mmengine.logging import MMLogger
 
-class TemporalShift_one(nn.Module):
-    def __init__(self, num_frames, n_head, n_div=8, divide_head=False, shift_stride=1, long_shift_div=-1):
-        super(TemporalShift_one, self).__init__()
+class TemporalShift(nn.Module):
+    def __init__(self, num_frames, n_head, n_div=8, ops_type='stdha', shift_stride=1, long_shift_div=-1, long_shift_right=False):
+        super(TemporalShift, self).__init__()
         self.num_frames = num_frames
         self.fold_div = n_div
         self.n_head = n_head
-        self.divide_head = divide_head
+        self.ops_type = ops_type
         self.shift_stride = shift_stride
         self.long_shift_div = long_shift_div # 目前定死为向右看两位
-
+        self.long_shift_right = long_shift_right
         logger = MMLogger.get_current_instance()
-        logger.info( f'Temporal shift, num_frames: {self.num_frames}, n_head: {self.n_head}, fold_div: {self.fold_div} divide_head: {self.divide_head} shift_stride: {self.shift_stride} long_shift_div: {self.long_shift_div}')
+        logger.info( f'Temporal shift, num_frames: {self.num_frames}, n_head: {self.n_head}, fold_div: {self.fold_div} ops_type: {self.ops_type} shift_stride: {self.shift_stride} long_shift_div: {self.long_shift_div} long_shift_right: {self.long_shift_right}')
     
         
     def forward(self, x):
@@ -26,8 +26,7 @@ class TemporalShift_one(nn.Module):
         n, bt, c = x.shape
         feat = x
 
-        if self.divide_head: # 分head shift 
-            raise NotImplementedError
+        if self.ops_type == 'tcs': # 每个head都shift
             feat = feat.view(n, bt // self.num_frames,
                             self.num_frames, self.n_head,  c // self.n_head)
             out = feat.clone() # TODO 为了和 XViT对齐可以改成zero
@@ -37,25 +36,38 @@ class TemporalShift_one(nn.Module):
             out[:, :, :-1*self.shift_stride, :, fold:2*fold] =  feat[:, :, self.shift_stride:, :, fold:2*fold]  # shift right
             if self.long_shift_div > 0:
                 long_fold = c // self.long_shift_div # NOTE 目前写死为shift两位
-                out[:, :, 2:, :,  2*fold:(2*fold+long_fold)] =  feat[:, :, :-2, :,  2*fold:(2*fold+long_fold)]  # shift left
-            # out[:, :, 1:, :, :fold] =  feat[:, :, :-1, :, :fold]  # shift left
-            # out[:, :, :-1, :, fold:2*fold] =  feat[:, :, 1:, :, fold:2*fold]  # shift right
+                out[:, :, 2:, :,  2*fold:(2*fold+long_fold)] = feat[:, :, :-2, :,  2*fold:(2*fold+long_fold)]  # shift left
+                if self.long_shift_right:
+                    out[:, :, :-2, :, (2*fold+long_fold):(2*fold+2*long_fold)] =  feat[:, :, 2:, :, (2*fold+long_fold):(2*fold+2*long_fold)]  # shift right
  
-        else: 
-            # 不分head shift
+        elif self.ops_type == 'stdha': 
+            # 部分head都shift
             feat = feat.view(n, bt // self.num_frames,
                             self.num_frames, c)
             out = feat.clone() # TODO 为了和 XViT对齐可以改成zero
 
             fold = c // self.fold_div
-            # NOTE: 只向左shift
+            
             out[:, :, self.shift_stride:, :fold] =  feat[:, :, :-1*self.shift_stride, :fold]  # shift left
-            # out[:, :, :-1*self.shift_stride, fold:2*fold] =  feat[:, :, self.shift_stride:, fold:2*fold]  # right
+            out[:, :, :-1*self.shift_stride, fold:2*fold] =  feat[:, :, self.shift_stride:, fold:2*fold]  # shift right
 
             if self.long_shift_div > 0:
-                raise NotImplementedError
                 long_fold = c // self.long_shift_div # NOTE 目前写死为向左shift两位
                 out[:, :, 2:, 2*fold:(2*fold+long_fold)] =  feat[:, :, :-2, 2*fold:(2*fold+long_fold)]  # shift left
+                if self.long_shift_right:
+                    out[:, :, :-2, (2*fold+long_fold):(2*fold+2*long_fold)] = feat[:, :, 2:, (2*fold+long_fold):(2*fold+2*long_fold)]  # shift right
+        elif self.ops_type == 'token_shift': 
+            feat = feat.view(n, bt // self.num_frames,
+                            self.num_frames, c)
+            out = feat.clone() # TODO 为了和 XViT对齐可以改成zero
+
+            fold = c // self.fold_div
+            
+            out[0, :, 1:, :fold] =  feat[0, :, :-1, :fold]  # shift left
+            out[0, :, :-1, fold:2*fold] =  feat[0, :, 1:, fold:2*fold]  # shift right
+
+        else:
+            raise NotImplementedError(self.ops_type)
 
         out = out.view(n, bt, c)
 
@@ -63,15 +75,25 @@ class TemporalShift_one(nn.Module):
 
 
 
-class XShiftMultiheadAttention_one(nn.MultiheadAttention):
+class STDHA_ablation(nn.MultiheadAttention):
     r"""Shift key and value after QKV project.
     """
 
-    def __init__(self, embed_dim, num_heads, num_frames, shift_div=4, divide_head=True, shift_pattern='kv', shift_stride=1, long_shift_div=-1, **kwargs) -> None:
-        super(XShiftMultiheadAttention_one, self).__init__(embed_dim=embed_dim, num_heads=num_heads, **kwargs)
-        self.time_shift = TemporalShift_one(num_frames=num_frames, n_head=num_heads,
-                                         n_div=shift_div, divide_head=divide_head, shift_stride=shift_stride, long_shift_div=long_shift_div)
+    def __init__(self, embed_dim, num_heads, num_frames, shift_div=4, ops_type='stdha', shift_pattern='kv', shift_stride=1, long_shift_div=-1, long_shift_right=False, lora_cfg=None, **kwargs) -> None:
+        super(STDHA_ablation, self).__init__(embed_dim=embed_dim, num_heads=num_heads, **kwargs)
+        self.time_shift = TemporalShift(num_frames=num_frames, n_head=num_heads,
+                                         n_div=shift_div, ops_type=ops_type, shift_stride=shift_stride, long_shift_div=long_shift_div, long_shift_right=long_shift_right)
         self.shift_pattern = shift_pattern
+        self.lora_cfg = lora_cfg
+        if self.lora_cfg is not None:
+            if self.lora_cfg.get('type') == 'qv':
+                inter_dim = int(embed_dim * self.lora_cfg.get('mlp_ratio'))
+                self.lora_q_dwon = nn.Linear(embed_dim, inter_dim) 
+                self.lora_q_up = nn.Linear(inter_dim, embed_dim) 
+                self.lora_q_down = nn.Linear(embed_dim, inter_dim) 
+                self.lora_q_up = nn.Linear(inter_dim, embed_dim) 
+            else:
+                raise NotImplementedError
 
     def x_shift_multi_head_attention_forward(
         self, 
@@ -183,7 +205,6 @@ class XShiftMultiheadAttention_one(nn.MultiheadAttention):
         # shift k, v just like xvit
         if self.shift_pattern == 'qkv':
             q = self.time_shift(q)
-            raise NotImplementedError('暂时写一个') # TODO
 
         k = self.time_shift(k)
         v = self.time_shift(v)

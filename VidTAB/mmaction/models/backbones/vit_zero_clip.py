@@ -11,10 +11,10 @@ import clip
 from mmengine.logging import MMLogger
 from einops import rearrange
 from mmaction.registry import MODELS
-from ..common import XShiftMultiheadAttention
+from ..common import STDHA
 
 
-class RepAdapter(nn.Module):
+class LinearAdapter(nn.Module):
     def __init__(self, D_features, mlp_ratio=0.25, skip_connect=True, scale=1., dropout_rate=0.1):
         super().__init__()
         self.skip_connect = skip_connect
@@ -66,13 +66,13 @@ class QuickGELU(nn.Module):
         return x * torch.sigmoid(1.702 * x)
 
 class ResidualAttentionBlock_RepXViT(nn.Module):
-    # adapter_map = {'rep': RepAdapter, 'repmultihead': RepMultiheadAdapter}
+    # adapter_map = {'rep': LinearAdapter, 'repmultihead': RepMultiheadAdapter}
     def __init__(self, d_model: int, n_head: int, attn_mask: torch.Tensor = None, scale=1., num_tadapter=1,
                  num_frames=8, dropout_rate=0.1, adapter_type='rep', mlp_ratio=0.25, xvit_cfg=dict()):
         super().__init__()
         self.num_tadapter = num_tadapter
         self.xvit_cfg = xvit_cfg
-        self.attn = XShiftMultiheadAttention(embed_dim=d_model, num_heads=n_head, 
+        self.attn = STDHA(embed_dim=d_model, num_heads=n_head, 
                 num_frames=num_frames, shift_div=self.xvit_cfg.get('shift_div', 12),
                  divide_head=self.xvit_cfg.get('divide_head', False), shift_stride=self.xvit_cfg.get('shift_stride', 1),
                  long_shift_div=self.xvit_cfg.get('long_shift_div', -1))
@@ -90,12 +90,12 @@ class ResidualAttentionBlock_RepXViT(nn.Module):
         logger.info(f'num_tadapter:{num_tadapter}, mlp_ratio:{mlp_ratio} scale:{scale} dropout_rate:{dropout_rate}')
 
         if adapter_type == 'rep':
-            self.MLP_Adapter = RepAdapter(d_model, scale=scale, mlp_ratio=mlp_ratio, dropout_rate=dropout_rate)
+            self.MLP_Adapter = LinearAdapter(d_model, scale=scale, mlp_ratio=mlp_ratio, dropout_rate=dropout_rate)
             if self.num_tadapter == 2:
-                self.MLP_Adapter_out = RepAdapter(d_model, scale=scale, mlp_ratio=mlp_ratio, dropout_rate=dropout_rate)
+                self.MLP_Adapter_out = LinearAdapter(d_model, scale=scale, mlp_ratio=mlp_ratio, dropout_rate=dropout_rate)
 
-            self.S_Adapter = RepAdapter(d_model, scale=scale, mlp_ratio=mlp_ratio, dropout_rate=dropout_rate)
-            self.T_Adapter_in = RepAdapter(d_model, scale=scale, mlp_ratio=mlp_ratio, dropout_rate=dropout_rate)
+            self.S_Adapter = LinearAdapter(d_model, scale=scale, mlp_ratio=mlp_ratio, dropout_rate=dropout_rate)
+            self.T_Adapter_in = LinearAdapter(d_model, scale=scale, mlp_ratio=mlp_ratio, dropout_rate=dropout_rate)
         else:
             raise NotImplementedError(adapter_type)
 

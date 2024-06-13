@@ -7,69 +7,103 @@ import warnings
 from mmengine.logging import MMLogger
 
 class TemporalShift(nn.Module):
-    def __init__(self, num_frames, n_head, n_div=8, divide_head=False, shift_stride=1, long_shift_div=-1):
+    def __init__(self, num_frames, n_head, shift1_div=8, divide_head=False, shift2_div=-1, shift3_div=-1, shift3_right=False, shift4_div=-1, shift4_right=False):
         super(TemporalShift, self).__init__()
         self.num_frames = num_frames
-        self.fold_div = n_div
         self.n_head = n_head
         self.divide_head = divide_head
-        self.shift_stride = shift_stride
-        self.long_shift_div = long_shift_div # 目前定死为向右看两位
-
+        self.shift1_div = shift1_div
+        self.shift2_div = shift2_div # 目前定死为向右看两位
+        self.shift3_div = shift3_div
+        self.shift3_right = shift3_right
+        self.shift4_div = shift4_div
+        self.shift4_right = shift4_right
         logger = MMLogger.get_current_instance()
-        logger.info( f'Temporal shift, num_frames: {self.num_frames}, n_head: {self.n_head}, fold_div: {self.fold_div} divide_head: {self.divide_head} shift_stride: {self.shift_stride} long_shift_div: {self.long_shift_div}')
+        logger.info( f'Temporal shift, num_frames: {self.num_frames}, n_head: {self.n_head},  divide_head: {self.divide_head} shift1_div: {self.shift1_div} shift2_div: {self.shift2_div} shift3_div: {self.shift3_div} shift3_right: {self.shift3_right}  shift4_div: {self.shift4_div} shift4_right: {self.shift4_right}')
     
         
     def forward(self, x):
         # x is (HW+1, BT, D)
-        # raise NotImplementedError
+        
         n, bt, c = x.shape
         feat = x
 
-        if self.divide_head: # 分head shift 
+        if self.divide_head: # 每个head都shift
             raise NotImplementedError
             feat = feat.view(n, bt // self.num_frames,
                             self.num_frames, self.n_head,  c // self.n_head)
             out = feat.clone() # TODO 为了和 XViT对齐可以改成zero
 
-            fold = c // self.n_head // self.fold_div
-            out[:, :, self.shift_stride:, :, :fold] =  feat[:, :, :-1*self.shift_stride, :, :fold]  # shift left
-            out[:, :, :-1*self.shift_stride, :, fold:2*fold] =  feat[:, :, self.shift_stride:, :, fold:2*fold]  # shift right
-            if self.long_shift_div > 0:
-                long_fold = c // self.long_shift_div # NOTE 目前写死为shift两位
-                out[:, :, 2:, :,  2*fold:(2*fold+long_fold)] =  feat[:, :, :-2, :,  2*fold:(2*fold+long_fold)]  # shift left
-            # out[:, :, 1:, :, :fold] =  feat[:, :, :-1, :, :fold]  # shift left
-            # out[:, :, :-1, :, fold:2*fold] =  feat[:, :, 1:, :, fold:2*fold]  # shift right
+            fold = c // self.n_head // self.shift1_div
+            out[:, :, 1:, :, :fold] =  feat[:, :, :-1, :, :fold]  # shift left
+            out[:, :, :-1, :, fold:2*fold] =  feat[:, :, 1:, :, fold:2*fold]  # shift right
+            if self.shift2_div > 0:
+                long_fold = c // self.shift2_div # NOTE 目前写死为shift两位
+                out[:, :, 2:, :,  2*fold:(2*fold+long_fold)] = feat[:, :, :-2, :,  2*fold:(2*fold+long_fold)]  # shift left
+                out[:, :, :-2, :, (2*fold+long_fold):(2*fold+2*long_fold)] =  feat[:, :, 2:, :, (2*fold+long_fold):(2*fold+2*long_fold)]  # shift right
  
         else: 
-            # 不分head shift
+            # 部分head都shift
             feat = feat.view(n, bt // self.num_frames,
                             self.num_frames, c)
             out = feat.clone() # TODO 为了和 XViT对齐可以改成zero
 
-            fold = int(c // self.fold_div)
-            out[:, :, self.shift_stride:, :fold] =  feat[:, :, :-1*self.shift_stride, :fold]  # shift left
-            out[:, :, :-1*self.shift_stride, fold:2*fold] =  feat[:, :, self.shift_stride:, fold:2*fold]  # shift right
+            fold = c // self.shift1_div
+            # print('shift1', fold)
+            out[:, :, 1:, :fold] =  feat[:, :, :-1, :fold]  # shift left
+            out[:, :, :-1, fold:2*fold] =  feat[:, :, 1:, fold:2*fold]  # shift right
 
-            if self.long_shift_div > 0:
-                long_fold = c // self.long_shift_div # NOTE 目前写死为向左shift两位
+            if self.shift2_div > 0:
+                long_fold = c // self.shift2_div # NOTE 目前写死为向左shift两位
+                # print('shift2', long_fold)
                 out[:, :, 2:, 2*fold:(2*fold+long_fold)] =  feat[:, :, :-2, 2*fold:(2*fold+long_fold)]  # shift left
+                out[:, :, :-2, (2*fold+long_fold):(2*fold+2*long_fold)] = feat[:, :, 2:, (2*fold+long_fold):(2*fold+2*long_fold)]  # shift right
+                now_fold = 2*fold+2*long_fold
+            else:
+                now_fold = 2*fold
 
+            if self.shift3_div > 0:
+                # raise NotImplementedError
+                shift3_fold = c // self.shift3_div # NOTE 目前写死为向左shift两位
+                out[:, :, 3:, now_fold:(now_fold+shift3_fold)] =  feat[:, :, :-3, now_fold:(now_fold+shift3_fold)]  # shift left
+                if self.shift3_right:
+                    out[:, :, :-3, (now_fold+shift3_fold):(now_fold+2*shift3_fold)] = feat[:, :, 3:, (now_fold+shift3_fold):(now_fold+2*shift3_fold)]  # shift right
+                    now_fold = now_fold+2*shift3_fold
+                else:
+                    now_fold = now_fold + shift3_fold
+            
+            if self.shift4_div > 0:
+                # raise NotImplementedError
+                shift4_fold = c // self.shift4_div
+                out[:, :, 4:, now_fold:(now_fold+shift4_fold)] =  feat[:, :, :-4, now_fold:(now_fold+shift4_fold)]  # shift left
+                if self.shift4_right:
+                    out[:, :, :-4, (now_fold+shift4_fold):(now_fold+2*shift4_fold)] = feat[:, :, 4:, (now_fold+shift4_fold):(now_fold+2*shift4_fold)]  # shift right
+                
+                
         out = out.view(n, bt, c)
 
         return out
 
 
 
-class XShiftMultiheadAttention(nn.MultiheadAttention):
+class STDHA_shift(nn.MultiheadAttention):
     r"""Shift key and value after QKV project.
     """
 
-    def __init__(self, embed_dim, num_heads, num_frames, shift_div=4, divide_head=True, shift_pattern='kv', shift_stride=1, long_shift_div=-1, **kwargs) -> None:
-        super(XShiftMultiheadAttention, self).__init__(embed_dim=embed_dim, num_heads=num_heads, **kwargs)
+    def __init__(self, embed_dim, num_heads, num_frames, divide_head=False, shift_pattern='kv', shift1_div=8, shift2_div=-1, shift3_div=-1, shift3_right=False, shift4_div=-1, shift4_right=False, **kwargs) -> None:
+        super(STDHA_shift, self).__init__(embed_dim=embed_dim, num_heads=num_heads, **kwargs)
         self.time_shift = TemporalShift(num_frames=num_frames, n_head=num_heads,
-                                         n_div=shift_div, divide_head=divide_head, shift_stride=shift_stride, long_shift_div=long_shift_div)
+                                         divide_head=divide_head, 
+                                         shift1_div=shift1_div,
+                                         shift2_div=shift2_div, 
+                                         shift3_div=shift3_div,
+                                         shift3_right=shift3_right,
+                                         shift4_div=shift4_div,
+                                         shift4_right=shift4_right)
         self.shift_pattern = shift_pattern
+        # self.vis_q = nn.Identity()
+        # self.vis_k = nn.Identity()
+        # self.vis_v = nn.Identity()
 
     def x_shift_multi_head_attention_forward(
         self, 
@@ -88,7 +122,7 @@ class XShiftMultiheadAttention(nn.MultiheadAttention):
         out_proj_bias: Optional[Tensor],
         training: bool = True,
         key_padding_mask: Optional[Tensor] = None,
-        need_weights: bool = False,
+        need_weights: bool = True,
         attn_mask: Optional[Tensor] = None,
         use_separate_proj_weight: bool = False,
         q_proj_weight: Optional[Tensor] = None,
@@ -178,10 +212,12 @@ class XShiftMultiheadAttention(nn.MultiheadAttention):
                 b_q, b_k, b_v = in_proj_bias.chunk(3)
             q, k, v = F._in_projection(query, key, value, q_proj_weight, k_proj_weight, v_proj_weight, b_q, b_k, b_v)
 
+        # q = self.vis_q(q)
+        # k = self.vis_k(k)
+        # v = self.vis_v(v)
         # shift k, v just like xvit
         if self.shift_pattern == 'qkv':
             q = self.time_shift(q)
-            raise NotImplementedError('暂时写一个') # TODO
 
         k = self.time_shift(k)
         v = self.time_shift(v)
@@ -289,23 +325,22 @@ class XShiftMultiheadAttention(nn.MultiheadAttention):
         #
         # (deep breath) calculate attention and out projection
         #
-        attn_output = F.scaled_dot_product_attention(q, k, v, attn_mask, dropout_p)
+        attn_output, attn_output_weights = F._scaled_dot_product_attention(q, k, v, attn_mask, dropout_p)
         attn_output = attn_output.transpose(0, 1).contiguous().view(tgt_len * bsz, embed_dim)
         attn_output = torch._C._nn.linear(attn_output, out_proj_weight, out_proj_bias)
         attn_output = attn_output.view(tgt_len, bsz, attn_output.size(1))
 
         if need_weights:
-            raise NotImplementedError
-            # # optionally average attention weights over heads
-            # attn_output_weights = attn_output_weights.view(bsz, num_heads, tgt_len, src_len)
-            # if average_attn_weights:
-            #     attn_output_weights = attn_output_weights.sum(dim=1) / num_heads
+            # optionally average attention weights over heads
+            attn_output_weights = attn_output_weights.view(bsz, num_heads, tgt_len, src_len)
+            if average_attn_weights:
+                attn_output_weights = attn_output_weights.sum(dim=1) / num_heads
 
-            # if not is_batched:
-            #     # squeeze the output if input was unbatched
-            #     attn_output = attn_output.squeeze(1)
-            #     attn_output_weights = attn_output_weights.squeeze(0)
-            # return attn_output, attn_output_weights
+            if not is_batched:
+                # squeeze the output if input was unbatched
+                attn_output = attn_output.squeeze(1)
+                attn_output_weights = attn_output_weights.squeeze(0)
+            return attn_output, attn_output_weights
         else:
             if not is_batched:
                 # squeeze the output if input was unbatched
@@ -314,7 +349,7 @@ class XShiftMultiheadAttention(nn.MultiheadAttention):
 
 
     def forward(self, query: Tensor, key: Tensor, value: Tensor, key_padding_mask: Optional[Tensor] = None,
-                need_weights: bool = False, attn_mask: Optional[Tensor] = None,
+                need_weights: bool = True, attn_mask: Optional[Tensor] = None,
                 average_attn_weights: bool = True) -> Tuple[Tensor, Optional[Tensor]]:
 
         is_batched = query.dim() == 3

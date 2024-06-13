@@ -12,7 +12,7 @@ from mmengine.logging import MMLogger
 from einops import rearrange
 from mmaction.registry import MODELS
 import math
-from ..common import XShiftMultiheadAttention_ablation
+from ..common import STDHA_ablation
 from ..common import FlashAttention_pytorch
 class ST_Adapter(nn.Module): # vit是桶状的，每个stage的dim都相同，所以你这里用ratio和给一个固定值是一样的
     def __init__(self, num_frames, D_features, D_hidden_features=384, act_layer=nn.GELU, skip_connect=True):
@@ -98,7 +98,7 @@ class ResidualAttentionBlock(nn.Module):
             else:
                 self.attn = nn.MultiheadAttention(d_model, n_head)
         else:
-            self.attn = XShiftMultiheadAttention_ablation(embed_dim=d_model, num_heads=n_head, 
+            self.attn = STDHA_ablation(embed_dim=d_model, num_heads=n_head, 
                 num_frames=num_frames, shift_div=12, shift_pattern='kv',
                  ops_type='stdha', shift_stride=1,
                  long_shift_div=-1,

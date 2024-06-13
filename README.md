@@ -45,15 +45,15 @@ python tools/train.py ${CONFIG_FILE} [ARGS]
 And I provide my train scripts `tools/my_train.sh` for avoiding setting [ARGS], then you could begin to use VidTAB by execute a bash file like this:
 
 ```bash
-bash tools/my_train.sh configs/video_eval/AR_in_Dark/Internvideo2/frozen_tuning/InternVideo2-1B-stage1-pt_16_shot_bs16.py 1
-bash tools/my_train.sh configs/video_eval/AR_in_Dark/Internvideo2/frozen_tuning/InternVideo2-1B-stage1_100_shot_bs16.py 1
-bash tools/my_train.sh configs/video_eval/AR_in_Dark/Internvideo2/frozen_tuning/InternVideo2-1B-stage1-pt_100_shot_bs16.py 1
+bash tools/my_train.sh configs/video_eval/AR_in_Dark/Internvideo2/frozen_tuning/InternVideo2-1B-stage1-pt_16_shot_bs16.py
+bash tools/my_train.sh configs/video_eval/AR_in_Dark/Internvideo2/frozen_tuning/InternVideo2-1B-stage1_100_shot_bs16.py
+bash tools/my_train.sh configs/video_eval/AR_in_Dark/Internvideo2/frozen_tuning/InternVideo2-1B-stage1-pt_100_shot_bs16.py
 ...
-bash tools/my_train.sh configs/video_eval/Fake_face/ViCLIP/frozen_tuning/ViCLIP-200M_16_shot_bs16.py 1
-bash tools/my_train.sh configs/video_eval/Fake_face/ViCLIP/frozen_tuning/ViCLIP-10M_100_shot_bs16.py 1
-bash tools/my_train.sh configs/video_eval/Fake_face/ViCLIP/frozen_tuning/ViCLIP-10M_16_shot_bs16.py 1
-bash tools/my_train.sh configs/video_eval/Fake_face/ViCLIP/frozen_tuning/ViCLIP-200M_100_shot_bs16.py 1
-bash tools/my_train.sh configs/video_eval/Fake_face/ZeroI2V/linear_adapter0d125/ZeroI2V-CLIP-L_100_shot_bs16.py 1
+bash tools/my_train.sh configs/video_eval/Fake_face/ViCLIP/frozen_tuning/ViCLIP-200M_16_shot_bs16.py
+bash tools/my_train.sh configs/video_eval/Fake_face/ViCLIP/frozen_tuning/ViCLIP-10M_100_shot_bs16.py
+bash tools/my_train.sh configs/video_eval/Fake_face/ViCLIP/frozen_tuning/ViCLIP-10M_16_shot_bs16.py
+bash tools/my_train.sh configs/video_eval/Fake_face/ViCLIP/frozen_tuning/ViCLIP-200M_100_shot_bs16.py
+bash tools/my_train.sh configs/video_eval/Fake_face/ZeroI2V/linear_adapter0d125/ZeroI2V-CLIP-L_100_shot_bs16.py
 ```
 
 Then you can go to the work dir to find the corresponding log file to see the result, In all our experiments, we conducted validation during the training process to select the epoch with the highest accuracy. Consequently, there was no need for additional performance testing after the training was completed. Furthermore, please note that we used **a single clip rather than three clips** to obtain the final performance metrics.

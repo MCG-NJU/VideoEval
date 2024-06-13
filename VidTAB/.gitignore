@@ -2,7 +2,6 @@ pretrained_models
 pretrained_model
 .work_dirs
 work_dirs
-*.sh
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
