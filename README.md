@@ -82,7 +82,7 @@ Thanks to the open source of the following projects:
 [facebookresearch/vsc2022](https://github.com/facebookresearch/vsc2022/tree/main),[MKLab-ITI/FIVR-200K](https://github.com/MKLab-ITI/FIVR-200K)
 
 ## :page_facing_up: Citation
-💫 Acknowledgement
+
 If you find this project useful in your research, please consider cite:
 ```BibTeX
 
