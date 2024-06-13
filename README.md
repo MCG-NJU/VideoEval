@@ -58,14 +58,24 @@ bash tools/my_train.sh configs/video_eval/Fake_face/ZeroI2V/linear_adapter0d125/
 
 Then you can go to the work dir to find the corresponding log file to see the result, In all our experiments, we conducted validation during the training process to select the epoch with the highest accuracy. Consequently, there was no need for additional performance testing after the training was completed. Furthermore, please note that we used **a single clip rather than three clips** to obtain the final performance metrics.
 
-
 #### Zero-Shot Evaluation
 
-todo
+**Prompts for  Zero-Shot Evaluation**: see [prompts for image backbones](https://github.com/leexinhao/VideoEval/blob/main/VidTAB_Zeroshot/img_prompt_gen.py), [prompts for video backbones](https://github.com/leexinhao/VideoEval/blob/main/VidTAB_Zeroshot/vid_prompt_gen.py).
+
+```bash
+bash exp/vid_zs.sh #for video backbones
+bash exp/img_zs.sh #for image backbones
+```
 
 ### Video Embed Benchmark (VidEB)
 
-todo
+For evaluation, we provide [example](https://github.com/leexinhao/VideoEval/blob/main/VidEB/example.ipynb) as a demonstration of the pipeline of embedding extraction and evaluation
+
+#### Acknowledgement
+
+ Thanks to the open source of the following projects:
+
+[facebookresearch/vsc2022](https://github.com/facebookresearch/vsc2022/tree/main),[MKLab-ITI/FIVR-200K](https://github.com/MKLab-ITI/FIVR-200K)
 
 ## :page_facing_up: Citation
 
