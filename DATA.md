@@ -24,7 +24,7 @@ You could download all videos from Animal Kingdom at https://forms.office.com/pa
 
 You just need to use the mp4 video in the video folder and then use the [annotations](https://github.com/leexinhao/VideoEval/tree/main/VidTAB/annotations/Animal_Behavior)  we provided.
 
-## Harmful_Content
+## Harmful Content
 
 You could download all videos from MOB at https://drive.google.com/file/d/1Zjib-WaF5hk3wVrj5eW6ewdpMFcn45Wo/view.
 

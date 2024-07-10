@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<h2><a href="https://arxiv.org/abs/">VideoEval: Comprehensive Benchmark Suite for Low-Cost Evaluation of Video Foundation Model</a></h2>
+<h2><a href="https://arxiv.org/abs/2407.06491">VideoEval: Comprehensive Benchmark Suite for Low-Cost Evaluation of Video Foundation Model</a></h2>
 
 [Xinhao Li](https://scholar.google.com.hk/citations?user=evR3uR0AAAAJ&hl=zh-CN), Zhenpeng Huang, Jing Wang, [Kunchang Li](https://scholar.google.com/citations?user=D4tLSbsAAAAJ), and [Limin Wang](https://scholar.google.com/citations?user=HEuN8PcAAAAJ).
 
@@ -84,5 +84,10 @@ Thanks to the open source of the following projects: [ARID](https://xuyu0010.git
 
 If you find this project useful in your research, please consider cite:
 ```BibTeX
-
+@article{li2024videoeval,
+  title={VideoEval: Comprehensive Benchmark Suite for Low-Cost Evaluation of Video Foundation Model},
+  author={Li, Xinhao and Huang, Zhenpeng and Wang, Jing and Li, Kunchang and Wang, Limin},
+  journal={arXiv preprint arXiv:2407.06491},
+  year={2024}
+}
 ```
