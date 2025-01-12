@@ -1,0 +1,8 @@
+videos/neg/406_391-Deepfakes.mp4 0
+videos/neg/202_348-Face2Face.mp4 0
+videos/neg/101_096-Deepfakes.mp4 0
+videos/neg/282_238_NeuralTextures.mp4 0
+videos/pos/406.mp4 1
+videos/pos/202.mp4 1
+videos/pos/101.mp4 1
+videos/pos/282.mp4 1

@@ -1,0 +1,8 @@
+videos/neg/336_338-Deepfakes.mp4 0
+videos/neg/484_415-Deepfakes.mp4 0
+videos/neg/669_682-Face2Face.mp4 0
+videos/neg/893_913-Deepfakes.mp4 0
+videos/pos/336.mp4 1
+videos/pos/484.mp4 1
+videos/pos/669.mp4 1
+videos/pos/893.mp4 1
