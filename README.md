@@ -10,8 +10,10 @@
 
 <img src="img/image-20240607232318559.png" alt="image-20240607232318559" style="zoom: 67%;" />
 
-## :fire: Updates
-- **2024/06/12**: Release annotations and evaluation codes of **VideoEval**, which includes VidTAB and VidEB.
+<!-- ## 📺 Task Example
+
+<!-- ## :fire: Updates
+- **2024/06/12**: Release annotations and evaluation codes of **VideoEval**, which includes VidTAB and VidEB. --> 
 
 ## 🛠️ Requirements and Installation
 
@@ -75,6 +77,61 @@ bash exp/img_zs.sh #for image language models
 ### Video Embed Benchmark (VidEB)
 
 For evaluation, we provide [example](https://github.com/leexinhao/VideoEval/blob/main/VidEB/example.ipynb) as a demonstration of the pipeline of embedding extraction and evaluation.
+
+## 🧰 How to build VideoEval?
+
+### Collecting diverse dataset from public source
+
+We conducted a months-long investigation, integrating insights from multiple researchers and engineers in the field of video understanding, and selected evaluation tasks by leveraging available high-quality public video data. Our selection was guided by two core principles:
+
+1. The selected tasks are **meaningful real-world tasks**; the practical application value of these tasks ensures the validity of the capability dimensions we evaluate.
+2. The selected tasks are often **unaddressed in previous evaluations**, thereby ensuring our assessment of the out-of-domain generalization of Video Foundation Models (VFMs).
+We elaborate below on the application value and evaluative significance of each scenario in our assessment:
+
+- **Action**: While numerous previous benchmarks have evaluated action recognition tasks, we still include it as part of our assessment given its status as one of the most critical video understanding tasks. We focus on specialized scenarios that have received relatively little attention in traditional action recognition tasks, specifically selecting action recognition in dark scenes and long-video scenarios. This aims to examine the action recognition performance of VFMs in relatively out-of-domain test scenarios (as most training data for existing VFMs consists of short videos in relatively bright scenes).
+
+- **Science**: "AI for Science" has emerged as a topic of growing interest in recent years but has often been overlooked in previous video understanding benchmarks. We chose animal and medical video understanding for evaluation in this domain, with specific application scenarios including animal behavior monitoring, behavioral surveillance during medical surgeries, and safety inspections.
+
+- **Safety**: Using AI for video content moderation is a key application of video understanding, encompassing tasks such as detection of AI-generated content and detection of harmful information. These tasks require models to possess more fine-grained video understanding capabilities.
+
+- **Quality**: Low-level evaluation of video quality has also been generally neglected in previous VFM assessments. We argue that a sufficiently general VFM representation should not only support high-level semantic understanding but also enable low-level visual understanding.
+Emotion: Understanding human emotions is a crucial capability for AI models. Human emotions are complex and often require capturing microexpressions and subtle movements for accurate recognition, making this an important application scenario for VFMs.
+
+### Constructing the adaptation task based on the existing annotations
+#### 1. Remove Low Quality Video Datasets
+
+We manually exclude datasets with videos that have low resolution (below 240p), low frame rate (below 15fps), insufficient quantity (fewer than 150 videos per category), or low annotation accuracy (below 90%).
+
+- We use [remove_low_quality_video.py](tools/remove_low_quality_video.py) to filter low quailty videos.
+- We manually filter out datasets that lack sufficient high-quality videos, and at the same time, conduct partial sampling on the initially selected video datasets to check their annotation quality (with a human accuracy rate exceeding 90%).
+
+#### 2. Select Discriminative Tasks
+
+ For task difficulty screening, we first evaluate zero-shot classification performance using [VidTAB_Zeroshot](VidTAB_Zeroshot). We then classify samples as follows: 
+ - Easy: Samples that are correctly classified by three or more models. Spatial: Samples that are correctly classified by both CLIP and EVA
+ - Temporal: Samples that are correctly classified by at least one of ViCLIP or Internvideo2-1B, but not by CLIP and EVA. 
+ - Hard: Samples that are incorrectly classified by all models. We use the zero-shot classification accuracy of the models and the aforementioned proportions as references for task selection. Based on this, we choose tasks with lower zero-shot classification accuracy, higher proportions of Hard and Temporal samples, and lower proportions of Easy samples
+
+We also provide [evaluation_with_Gemini2.5](tools/evaluation_with_Gemini2.5.py) to use Gemini2.5-Pro/Flash to evaluate the datasets.
+
+#### 3. Control the Number of Categories
+
+For datasets that originally include category labels, such as ARID and Animal Kingdom, we select categories with sufficient samples to ensure evaluation accuracy and stability. We also control the final number of categories to avoid making the adaptation task overly difficult. We observed that both zero-shot testing and few-shot experiments based on current VFMs show that when the number of categories is too high, models often perform no better than random guessing. Although this issue may be mitigated as VFMs improve, we currently need to control the number of categories to effectively showcase differences between models. We select the main categories for each task and limit the number of categories to around 10 (based on few-shot experiments).
+
+- We use [mmaction2](VidTAB) to conduct few-shot experiments to determine the number of categories. We control the number of categories so that the current strongest VFMs can achieve a TA-score higher than random. Specifically, we remove overly detailed category branches and retain relatively coarse-grained key categories.
+
+#### 4. Handling Multi-label and Regression Tasks
+
+For datasets that are not originally classification tasks, we transform the tasks into classification tasks. For example, for DOVER, which is used for video aesthetics and technical quality assessment (a regression task), we assume that videos with quality scores in the top 40% are "high-quality videos" and those with scores in the bottom 40% are "low-quality videos", thus converting the original task into a binary classification task.
+
+- We use [convert_to_classify.py](tools/convert_to_classify.py) to convert regression task to classification task.
+
+### Determining the evaluation protocol
+ We use [mmaction2](VidTAB) to conduct few-shot experiments to determine the evaluation protocol in `VidTAB\configs\video_eval`.
+### Identifying efficient adaptation method for evaluation
+ We use [mmaction2](VidTAB) to conduct few-shot experiments to identify efficient adaptation method (e.g. `VidTAB\mmaction\models\backbones\v_jepa.py`).
+
+
 
 ## :dizzy: Acknowledgement
 
